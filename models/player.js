@@ -4,22 +4,22 @@ const playerSchema = new mongoose.Schema({
   name: {
     type: String
   },
-  // avatar: {
-  //   type: String
-  // },
-  // steamId: {
-  //   type: String
-  // },
-  // steamInfo: {
-  //   type: Object
-  // },
-  // admin: {
-  //   type: Boolean
-  // },
-  // friends: [{
-  //   type: mongoose.Schema.ObjectId,
-  //   ref: 'Player'
-  // }]
+  avatar: {
+    type: String
+  },
+  steamId: {
+    type: String
+  },
+  steamInfo: {
+    type: Object
+  },
+  admin: {
+    type: Boolean
+  },
+  friends: [{
+    type: mongoose.Schema.ObjectId,
+    ref: 'Player'
+  }]
 },
 {
   timestamps: true

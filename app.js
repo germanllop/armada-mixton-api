@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 
 const app = express()
 const api = require('./routes/api')
-// const models = require('./models/models')
+const models = require('./models/models')
 
 const port = 3000
 
@@ -13,10 +13,10 @@ require('dotenv').config()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-// const query = models.Player.find({})
-// query.exec(function(err,docs){
-//   console.log(docs)
-// })
+const query = models.Player.find({})
+query.exec(function(err,docs){
+  console.log(docs)
+})
 app.get('/', (req, res) => res.send('Hello Worldss'))
 
 app.use('/api', api)
