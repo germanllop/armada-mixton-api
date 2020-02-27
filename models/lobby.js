@@ -15,7 +15,8 @@ const lobbySchema = new mongoose.Schema({
   bestOf: {
     type: Number,
     min: 1,
-    max: 5
+    max: 5,
+    default: 1
   },
   maps: [String],
   mapSelected: {
@@ -23,6 +24,9 @@ const lobbySchema = new mongoose.Schema({
   },
   status: {
     type: String
+  },
+  closed: {
+    type: Boolean
   },
   mapSelection: {
     type: String
