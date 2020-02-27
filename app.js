@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const session = require('express-session')
 
 const app = express()
 const api = require('./routes/api')
@@ -15,12 +16,13 @@ require('dotenv').config()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
-// app.use(express.static(path.join(__dirname, 'public')))
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}))
 
-// const query = models.Player.find({})
-// query.exec(function(err,docs){
-//   console.log(docs)
-// })
 app.get('/', (req, res) => res.send('Hello Worldss'))
 
 app.use('/api', api)

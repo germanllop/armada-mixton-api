@@ -4,12 +4,12 @@ const listPublicLobbies = (req, res) => {
     Lobby.find({
         closed: false,
         public: true 
-    },(err, docs)=>{
+    },(err, lobbies)=>{
         if(err){
             console.log(err)
             res.send('Error, check logs')
         }else{
-            res.send(docs)
+            res.send(lobbies)
         }
         
     })
