@@ -25,7 +25,7 @@ const playerSchema = new mongoose.Schema({
   timestamps: true
 })
 
-playerSchema.query.bySteamId = function(steam_id) {
+playerSchema.query.findBySteamId = function(steam_id) {
   return this.where({steam_id: steam_id})
 }
 
