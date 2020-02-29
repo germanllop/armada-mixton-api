@@ -4,9 +4,6 @@ const playerSchema = new mongoose.Schema({
   name: {
     type: String
   },
-  avatar: {
-    type: String
-  },
   steamId: {
     type: String
   },
@@ -14,7 +11,11 @@ const playerSchema = new mongoose.Schema({
     type: Object
   },
   admin: {
-    type: Boolean
+    type: Boolean,
+    default: false
+  },
+  openidIdentifier: {
+    type: String
   },
   friends: [{
     type: mongoose.Schema.ObjectId,
@@ -25,8 +26,8 @@ const playerSchema = new mongoose.Schema({
   timestamps: true
 })
 
-playerSchema.query.findBySteamId = function(steam_id) {
-  return this.where({steam_id: steam_id})
+playerSchema.query.bySteamId = function(steamId) {
+  return this.where({steamId: steamId})
 }
 
 const Player = mongoose.model('Player', playerSchema)

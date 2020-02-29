@@ -12,7 +12,6 @@ router.get('/steam',
 router.get('/steam/return',
   passport.authenticate('steam', { failureRedirect: '/' }),
   function(req, res) {
-    // Aqui creamos el usuario de steam en nuestra base de datos en caso no existia   
     res.redirect('/')
   });
 

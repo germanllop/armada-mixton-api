@@ -1,33 +1,22 @@
+require('dotenv').config()
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const session = require('express-session')
 const morgan = require('morgan')
-const passport = require('passport')
-const SteamStrategy = require('passport-steam')
 
 const app = express()
 const api = require('./routes/api')
 const auth = require('./routes/auth')
-// const models = require('./models/models')
-
-require('dotenv').config()
+const passport = require('./config/passport')
+const checkAuth = require('./helpers/checkAuth')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors())
 app.use(morgan('dev'))
-
-// guarda el user completo en user
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-// Aca se deberia enviar el id, buscarlo en la base de datos de usurios y retornar el player supuestamente
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -36,24 +25,8 @@ app.use(session({
   cookie: { secure: false }
 }))
 
-passport.use(new SteamStrategy({
-  returnURL: 'http://localhost:3000/auth/steam/return',
-  realm: 'http://localhost:3000/',
-  apiKey: process.env.STEAM_API_KEY
-},
-function(identifier, profile, done) {
-  profile.identifier = identifier
-  return done(null, profile)
-}
-))
-
 app.use(passport.initialize())
 app.use(passport.session())
-
-function checkAuth(req, res, next) {
-  if (req.isAuthenticated()) { return next() }
-  res.redirect('/')
-}
 
 app.get('/', (req, res) => {
   if(req.isAuthenticated()){
