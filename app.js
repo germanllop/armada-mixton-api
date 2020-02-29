@@ -6,6 +6,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 const session = require('express-session')
 const morgan = require('morgan')
+const path = require('path')
 
 const app = express()
 const api = require('./routes/api')
@@ -27,6 +28,7 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
+//app.use(express.static(path.join(__dirname, 'public')))
 
 app.get('/', (req, res) => {
   if(req.isAuthenticated()){
