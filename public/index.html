@@ -4,8 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body>
+    <div id="chat">
+        <div id="window" class="flex flex-col items-centered max-w-lg mx-auto bg-white shadow-lg">
+            <div id="output" class="px-5 h-64 border"></div>
+            <input type="text" id="message" placeholder="Message" class="px-5 py-1 border">
+            <button id="send" class="text-purple-500 hover:text-white hover:bg-purple-500 border border-purple-500 font-semibold px-4 py-1 leading-normal">Send</button>
+        </div>
+    </div>
     
+    <script>
+        console.log('hello');
+
+        //Make connection
+        const socket = io.connect('http://localhost:3000')
+
+        var message = document.getElementById('message')
+        var btn = document.getElementById('send')
+        var output = document.getElementById('output')
+
+        btn.addEventListener('click',function(){
+            socket.emit('chat',{
+                message:message.value
+            })
+            message.value = ''
+        })
+        
+        socket.on('chat',function(data){
+            output.innerHTML += '<p>'+ data.message + '</p>'
+        })
+
+    </script>
 </body>
 </html>

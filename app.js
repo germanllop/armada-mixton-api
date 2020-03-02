@@ -7,12 +7,14 @@ const cors = require('cors')
 const session = require('express-session')
 const morgan = require('morgan')
 const path = require('path')
+const socket = require('socket.io')
 
 const app = express()
 const api = require('./routes/api')
 const auth = require('./routes/auth')
 const passport = require('./config/passport')
 const checkAuth = require('./helpers/checkAuth')
+const port = process.env.PORT || 3000
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -28,32 +30,40 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
-//app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')))
 
-app.get('/', (req, res) => {
-  if(req.isAuthenticated()){
-    res.redirect('/account')
-  }else{
-    res.send('<a href="auth/steam">Logueate Aqui</a>')
-  }
-})
+// app.get('/', (req, res) => {
+//   if(req.isAuthenticated()){
+//     res.redirect('/account')
+//   }else{
+//     res.send('<a href="auth/steam">Logueate Aqui</a>')
+//   }
+// })
 
-app.get('/account', checkAuth,function(req, res) {
-  res.send(req.user)
-})
+// app.get('/account', checkAuth,function(req, res) {
+//   res.send(req.user)
+// })
 
-app.get('/logout',(req,res)=>{
-  req.logout()
-  res.redirect('/')
-})
+// app.get('/logout',(req,res)=>{
+//   req.logout()
+//   res.redirect('/')
+// })
 
 app.use('/api', api)
 app.use('/auth', auth)
 
-const port = process.env.PORT || 3000
 
-mongoose.connect(process.env.DATABASE_URL,{ useNewUrlParser: true, useUnifiedTopology: true }).then(async() => {
-  app.listen(port, () => console.log('App listening on port ' + port + ': Go to http://localhost:' + port))
+mongoose.connect(process.env.DATABASE_URL,{ useNewUrlParser: true, useUnifiedTopology: true })
+const server = app.listen(port, () => console.log('Server running: Go to http://localhost:' + port))
+
+const io = socket(server)
+
+io.on('connection',(socket)=>{
+  console.log('Made socket connection',socket.id)
+  socket.on('chat',function(data){
+    console.log(data)
+    io.sockets.emit('chat',data)
+  })
 })
 
 module.exports = {
