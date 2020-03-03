@@ -44,7 +44,6 @@ async function getMyLobby(player){
         return newLobby
     }
     return myLobby
-
 }
 
 async function updateLobby(lobby){
@@ -67,9 +66,46 @@ async function updateLobby(lobby){
     return newLobby
 }
 
+async function joinLobby(player,code){
+    let lobby = await Lobby.findOne({
+        active:true,
+        code:code
+    }).exec()
+    if(lobby.players.includes(player.id)){
+        return lobby
+    }else{
+        lobby.players.push(player)
+        lobby.playersQty++
+        const newLobby = await lobby.save()
+        return newLobby 
+    }
+}
+
+async function leaveLobby(player, code){
+    let lobby = await Lobby.findOne({
+        active:true,
+        code:code
+    }).exec()
+    if(!lobby.players.includes(player.id)){
+        return 'Not in lobby'
+    }else{
+        lobby.ctSide.pull(player)
+        lobby.tSide.pull(player)
+        lobby.players.pull(player)
+        lobby.playersQty--
+        if(lobby.leader == player){
+            lobby.leader = lobby.player[0]
+        }
+        const newLobby = await lobby.save()
+        return newLobby 
+    }
+}
+
 module.exports = {
     listPublicLobbies,
     getMyLobby,
     createLobby,
-    updateLobby
+    updateLobby,
+    joinLobby,
+    leaveLobby
 }
