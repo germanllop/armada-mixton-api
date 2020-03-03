@@ -5,9 +5,7 @@ async function listPublicLobbies(){
         public: true 
     })
     .populate('players')
-    .exec()
-    console.log(publicLobbies)
-    
+    .exec()   
     return publicLobbies
 }
 

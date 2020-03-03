@@ -16,15 +16,21 @@ router.get('/getLobby',function(req,res){
     res.send(lobbyController.getMyLobby(req.user))
 })
 
-router.get('/createLobby',async(req,res)=>{
-       const player = await playerController.getFirstPlayer()
-       const newLobby = await lobbyController.createLobby(player)
-
-       res.send(newLobby)
-})
-
 router.post('/setLobby', function(req, res){
     res.send(lobbyController.setMyLobby(req.user, req.lobby))
 })
- 
+
+// Players Routes
+router.get('/getPlayers',async(req,res)=>{
+    const me = await playerController.getFirstPlayer() //Dev ir should change to req.user
+    const players = await playerController.getAllPlayers(me)
+    res.send(players)
+})
+
+router.get('/getFriends',async(req,res)=>{
+    const me = await playerController.getFirstPlayer() //Dev ir should change to req.user
+    const friends = await playerController.getFriendsList(me)
+    res.send(friends)
+})
+
 module.exports = router
