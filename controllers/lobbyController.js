@@ -1,28 +1,48 @@
 const Lobby = require('../models/lobby')
 
-const listPublicLobbies = (req, res) => {
-    Lobby.find({
-        closed: false,
+async function listPublicLobbies(){
+    const publicLobbies = await Lobby.find({
         public: true 
-    },(err, lobbies)=>{
+    })
+    .populate('players')
+    .exec()
+    console.log(publicLobbies)
+    
+    return publicLobbies
+}
+
+async function createLobby(player){
+    const newLobby = await new Lobby({
+        code: Math.random().toString(36).substr(2, 7).toUpperCase(),
+        leader: player,
+        players: [player]
+    }).save()
+    
+    return newLobby
+}
+
+async function getMyLobby(player){
+    const myLobby = await Lobby.findOne({
+        active: true
+    },(err,lobby)=>{
         if(err){
             console.log(err)
-            res.send('Error, check logs')
+            return 'Error, check logs'
+            
         }else{
-            res.send(lobbies)
+            return lobby
         }
-        
+    }).populate({
+        path:'players',
+        match: {id:player.id}
     })
-}
+    .exec()
+    return myLobby
 
-const setMyLobby = (req, res) => {
-    res.send('Setear Lobby')
-}
-
-const getMyLobby = (req, res) => {
-    res.send('traer info del lobby')
 }
 
 module.exports = {
     listPublicLobbies,
+    getMyLobby,
+    createLobby
 }

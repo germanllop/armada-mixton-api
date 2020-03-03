@@ -7,12 +7,12 @@ const cors = require('cors')
 const session = require('express-session')
 const morgan = require('morgan')
 const path = require('path')
-const socket = require('socket.io')
 
 const app = express()
 const api = require('./routes/api')
 const auth = require('./routes/auth')
 const passport = require('./config/passport')
+const socketio = require('./config/socketio')
 const checkAuth = require('./helpers/checkAuth')
 const port = process.env.PORT || 3000
 
@@ -52,19 +52,9 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/api', api)
 app.use('/auth', auth)
 
-
 mongoose.connect(process.env.DATABASE_URL,{ useNewUrlParser: true, useUnifiedTopology: true })
 const server = app.listen(port, () => console.log('Server running: Go to http://localhost:' + port))
-
-const io = socket(server)
-
-io.on('connection',(socket)=>{
-  console.log('Made socket connection',socket.id)
-  socket.on('chat',function(data){
-    console.log(data)
-    io.sockets.emit('chat',data)
-  })
-})
+socketio.listen(server)
 
 module.exports = {
   app

@@ -4,11 +4,17 @@ const lobbySchema = new mongoose.Schema({
   code: {
     type: String
   },
+  active:{
+    type: Boolean,
+    default: true
+  },
   public: {
-    type: Boolean
+    type: Boolean,
+    default: true
   },
   playersQty: {
     type: Number,
+    default:1,
     min: 1,
     max: 12
   },
@@ -23,25 +29,25 @@ const lobbySchema = new mongoose.Schema({
     type: String  
   },
   status: {
-    type: String
-  },
-  closed: {
-    type: Boolean
+    type: String,
+    default:'open'
   },
   mapSelection: {
-    type: String
+    type: String,
+    default:'fixed'
   },
   teamSelection: {
-    type: String
+    type: String,
+    default: 'fixed'
   },
+  players:[{
+    type: mongoose.Schema.ObjectId,
+    ref: 'Player'
+  }],
   leader: {
     type: mongoose.Schema.ObjectId,
     ref: 'Player'
   },
-  spectators: [{
-    type: mongoose.Schema.ObjectId,
-    ref: 'Player'
-  }],
   ctSide: [{
     type: mongoose.Schema.ObjectId,
     ref: 'Player'
