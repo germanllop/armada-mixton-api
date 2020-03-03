@@ -11,6 +11,7 @@ router.post('/',function(req,res){
     res.send(req.body)
 })
 
+// Lobby Routes
 router.get('/getPublicLobbies',async(req,res)=>{
     const publicLobbies = await lobbyController.listPublicLobbies()
     res.send(publicLobbies)
@@ -20,7 +21,6 @@ router.get('/getLobby',async function(req,res){
     const me = await playerController.getFirstPlayer() //Dev it should change to req.user
     const lobby = await lobbyController.getMyLobby(me)
     res.send(lobby)
-
 })
 
 router.post('/updateLobby', async function(req, res){
