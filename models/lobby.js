@@ -2,7 +2,8 @@ const mongoose = require('mongoose')
 
 const lobbySchema = new mongoose.Schema({
   code: {
-    type: String
+    type: String,
+    unique: true
   },
   active:{
     type: Boolean,

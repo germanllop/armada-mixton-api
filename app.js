@@ -52,7 +52,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/api', api)
 app.use('/auth', auth)
 
-mongoose.connect(process.env.DATABASE_URL,{ useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.DATABASE_URL,{ useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
 const server = app.listen(port, () => console.log('Server running: Go to http://localhost:' + port))
 socketio.listen(server)
 
