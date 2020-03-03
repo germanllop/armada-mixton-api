@@ -48,7 +48,7 @@ async function getMyLobby(player){
 }
 
 async function updateLobby(lobby){
-    let newLobby = await Lobby.findByIdAndUpdate(lobby.id, {
+    let newLobby = await Lobby.findByIdAndUpdate(lobby._id, {
         active:         lobby.active,
         public:         lobby.public,
         playersQty:     lobby.playersQty,
@@ -61,9 +61,9 @@ async function updateLobby(lobby){
         ctSide:         lobby.ctSide,
         tSide:          lobby.tSide,
         leader:         lobby.leader,
-    }).exec()
-    console.log(newLobby)
-    
+    },{
+        new:true
+    }).exec()   
     return newLobby
 }
 
