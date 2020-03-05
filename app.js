@@ -18,7 +18,7 @@ const port = process.env.PORT || 3000
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(cors())
+app.use(cors({ credentials: true }))
 app.use(morgan('dev'))
 
 app.use(session({
@@ -30,24 +30,24 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
-app.use(express.static(path.join(__dirname, 'public')))
+//app.use(express.static(path.join(__dirname, 'public')))
 
-// app.get('/', (req, res) => {
-//   if(req.isAuthenticated()){
-//     res.redirect('/account')
-//   }else{
-//     res.send('<a href="auth/steam">Logueate Aqui</a>')
-//   }
-// })
+app.get('/', (req, res) => {
+  if(req.isAuthenticated()){
+    res.redirect('/account')
+  }else{
+    res.send('<a href="auth/steam">Logueate Aqui</a>')
+  }
+})
 
-// app.get('/account', checkAuth,function(req, res) {
-//   res.send(req.user)
-// })
+app.get('/account', checkAuth,function(req, res) {
+  res.send(req.user)
+})
 
-// app.get('/logout',(req,res)=>{
-//   req.logout()
-//   res.redirect('/')
-// })
+app.get('/logout',(req,res)=>{
+  req.logout()
+  res.redirect('/')
+})
 
 app.use('/api', api)
 app.use('/auth', auth)
