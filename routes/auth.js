@@ -7,12 +7,17 @@ router.get('/steam',
   function(req, res) {
     console.log('You are not supposed to read this')
     res.redirect('/')
-  });
+  })
 
 router.get('/steam/return',
   passport.authenticate('steam', { failureRedirect: '/' }),
   function(req, res) {
     res.redirect('/')
-  });
+  })
+
+router.get('/logout',(req,res)=>{
+  req.logout()
+  res.redirect('/')
+})
 
 module.exports = router

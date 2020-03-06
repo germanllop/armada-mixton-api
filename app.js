@@ -30,7 +30,6 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
-//app.use(express.static(path.join(__dirname, 'public')))
 
 app.get('/', (req, res) => {
   if(req.isAuthenticated()){
@@ -40,17 +39,15 @@ app.get('/', (req, res) => {
   }
 })
 
-app.get('/account', checkAuth,function(req, res) {
+app.get('/account', checkAuth, function(req, res) {
   res.send(req.user)
-})
-
-app.get('/logout',(req,res)=>{
-  req.logout()
-  res.redirect('/')
 })
 
 app.use('/api', api)
 app.use('/auth', auth)
+
+// app.use(express.static(path.join(__dirname, 'public')))
+// app.get(/.*/,(req,res)=>res.sendFile(path.resolve(__dirname,'public/index.html')))
 
 mongoose.connect(process.env.DATABASE_URL,{ 
   useNewUrlParser: true, 

@@ -1,6 +1,6 @@
-const socket = require('socket.io')()
+const io = require('socket.io')()
 
-socket.on('connection',(socket)=>{
+io.on('connection',(socket)=>{
   console.log('Made socket connection',socket.id)
   socket.on('chat',function(data){
     console.log(data)
@@ -8,4 +8,4 @@ socket.on('connection',(socket)=>{
   })
 })
 
-module.exports = socket
+module.exports = io
