@@ -7,6 +7,7 @@ const cors = require('cors')
 const session = require('express-session')
 const morgan = require('morgan')
 const path = require('path')
+const history = require('connect-history-api-fallback')
 
 const app = express()
 const api = require('./routes/api')
@@ -31,23 +32,23 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.get('/', (req, res) => {
-  if(req.isAuthenticated()){
-    res.redirect('/account')
-  }else{
-    res.send('<a href="auth/steam">Logueate Aqui</a>')
-  }
-})
+// app.get('/', (req, res) => {
+//   if(req.isAuthenticated()){
+//     res.redirect('/account')
+//   }else{
+//     res.send('<a href="auth/steam">Logueate Aqui</a>')
+//   }
+// })
 
-app.get('/account', checkAuth, function(req, res) {
-  res.send(req.user)
-})
+// app.get('/account', checkAuth, function(req, res) {
+//   res.send(req.user)
+// })
 
-app.use('/api', api)
+app.use('/api', /*checkAuth,*/ api)
 app.use('/auth', auth)
+app.use(history())
 
-// app.use(express.static(path.join(__dirname, 'public')))
-// app.get(/.*/,(req,res)=>res.sendFile(path.resolve(__dirname,'public/index.html')))
+app.use(express.static(path.join(__dirname, 'public')))
 
 mongoose.connect(process.env.DATABASE_URL,{ 
   useNewUrlParser: true, 

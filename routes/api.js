@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const playerController = require('../controllers/playerController')
 const lobbyController = require('../controllers/lobbyController')
+const checkAuth = require('../helpers/checkAuth')
 
 router.get('/',function(req, res){
     res.send('API Route is Working')
@@ -45,6 +46,11 @@ router.get('/getFriends',async(req,res)=>{
     const me = await playerController.getFirstPlayer() //Dev it should change to req.user
     const friends = await playerController.getFriendsList(me)
     res.send(friends)
+})
+
+router.get('/getPlayer',async(req,res)=>{
+    const me = await playerController.getFirstPlayer() //Dev it should change to req.user
+    res.send(me)
 })
 
 module.exports = router
