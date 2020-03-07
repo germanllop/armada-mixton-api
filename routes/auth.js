@@ -15,6 +15,14 @@ router.get('/steam/return',
     res.redirect('/')
   })
 
+router.get('/check',(req,res)=>{
+  if(req.user) {
+    res.send(req.user)
+  }else{
+    res.send(false)
+  }
+})
+
 router.get('/logout',(req,res)=>{
   req.logout()
   res.redirect('/')
