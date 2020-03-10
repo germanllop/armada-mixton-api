@@ -22,9 +22,16 @@ async function addFriend(me, player){
     return newMe
 }
 
+async function setName(me,name){
+    me.name = name
+    const newMe = await me.save()
+    return newMe
+}
+
 module.exports = {
     getFirstPlayer,
     getFriendsList,
     getAllPlayers,
-    addFriend
+    addFriend,
+    setName
 }

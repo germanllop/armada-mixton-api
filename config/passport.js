@@ -24,7 +24,6 @@ passport.use(new SteamStrategy({
                 done(null, player)
             }else{
                 new Player({
-                    name: profile.displayName,
                     steamId: profile.id,
                     steamInfo: profile._json,
                     openidIdentifier:identifier
