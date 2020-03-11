@@ -10,9 +10,9 @@ router.get('/steam',
   })
 
 router.get('/steam/return',
-  passport.authenticate('steam', { failureRedirect: '/' }),
+  passport.authenticate('steam', { failureRedirect: 'http://localhost:8080/' }),
   function(req, res) {
-    res.redirect('/')
+    res.redirect('http://localhost:8080/') //Dev mode with 8080 port frontend, change with / for production
   })
 
 router.get('/check',(req,res)=>{
