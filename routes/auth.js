@@ -19,13 +19,13 @@ router.get('/check',(req,res)=>{
   if(req.isAuthenticated()) {
     res.send(req.user)
   }else{
-    res.send(false)
+    res.send(null)
   }
 })
 
 router.get('/logout',(req,res)=>{
   req.logout()
-  res.status(403).send('Bye bye!')
+  res.status(200).send('Bye bye!')
 })
 
 module.exports = router
