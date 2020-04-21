@@ -92,7 +92,7 @@ async function joinLobby(player,code){
         }
     }).exec()
     if(lobby){        
-        if(lobby.id != currentLobby.id){ // Check if player is in another lobby
+        if(currentLobby && (lobby.id != currentLobby.id)){ // Check if player is in another lobby
             await leaveLobby(player) // Exits the other lobby so he can join this one
         }
         if(lobby.players.includes(player.id)){
