@@ -28,6 +28,10 @@ async function setName(me,name){
     return newMe
 }
 
+async function findPlayer(query){
+    
+}
+
 module.exports = {
     getFirstPlayer,
     getFriendsList,

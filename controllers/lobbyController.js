@@ -1,103 +1,142 @@
 const Lobby = require('../models/lobby')
+const io = require('../config/socketio')
 
 async function listPublicLobbies(){
-    const publicLobbies = await Lobby.find({
+    const publicLobbies = Lobby.find({
         public: true,
+        status:'open',
         active: true
     })
     .populate('players')
-    .exec()   
+    .populate('leader')
+    .populate('spectators')
+    .populate('ctSide')
+    .populate('tSide')
+    await publicLobbies.exec()   
     return publicLobbies
 }
 
 async function createLobby(player){
-    const newLobby = await new Lobby({
+    const newLobby = new Lobby({
         code: Math.random().toString(36).substr(2, 7).toUpperCase(),
         leader: player,
-        players: [player]
-    }).save()
-    
+        players: [player],
+        spectators: [player]
+    })
+    await newLobby.save()
+    io.emit('update-lobbies-list')
     return newLobby
 }
 
 async function getMyLobby(player){
-    const myLobby = await Lobby.findOne({
+    const myLobby = Lobby.findOne({
         active: true,
+        status:'open',
         players:{
             _id:player.id
         }
-    },(err,lobby)=>{
-        if(err){
-            console.log(err)
-            return 'Error, check logs'
-            
-        }else{
-            return lobby
-        }
     })
+    .populate('leader')
     .populate('players')
+    .populate('spectators')
     .populate('ctSide')
     .populate('tSide')
-    .exec()
-    if(!myLobby){
-        const newLobby =  await createLobby(player)
-        return newLobby
-    }
+    await myLobby.exec()
     return myLobby
 }
 
 async function updateLobby(lobby){
-    let newLobby = await Lobby.findByIdAndUpdate(lobby._id, {
-        active:         lobby.active,
-        public:         lobby.public,
-        playersQty:     lobby.playersQty,
-        bestOf:         lobby.bestOf,
-        maps:           lobby.maps,
-        status:         lobby.status,
-        mapSelection:   lobby.mapSelection,
-        teamSelection:  lobby.teamSelection,
-        players:        lobby.players,
+    let query = Lobby.findByIdAndUpdate(lobby._id, {
+        //active:         lobby.active,
+        //public:         lobby.public, // Future tech
+        //playersQty:     lobby.playersQty,
+        //bestOf:         lobby.bestOf, // Future tech
+        //maps:           lobby.maps, // Future tech for bestOf
+        //status:         lobby.status, // This is controlled by the backend
+        //mapSelection:   lobby.mapSelection, // Future tech for bestOf
+        mapSelected:   lobby.mapSelected,
+        //teamSelection:  lobby.teamSelection,
+        //players:        lobby.players, // This is controlled by the backend
+        spectators:     lobby.spectators,
         ctSide:         lobby.ctSide,
         tSide:          lobby.tSide,
         leader:         lobby.leader,
     },{
         new:true
-    }).exec()   
+    })
+    .populate('leader')
+    .populate('players')
+    .populate('spectators')
+    .populate('ctSide')
+    .populate('tSide')
+    let newLobby = await query.exec()   
+    newLobby.players.forEach(player => {
+        if(player._id != newLobby.leader._id){
+            io.in(player._id).emit('update-lobby',newLobby._id)
+        }
+    })  
     return newLobby
 }
 
 async function joinLobby(player,code){
     let lobby = await Lobby.findOne({
         active:true,
+        status:'open',
         code:code
     }).exec()
-    if(lobby.players.includes(player.id)){
-        return lobby
+    if(lobby){
+        if(lobby.players.includes(player.id)){
+            return lobby
+        }else{
+            lobby.players.push(player)
+            lobby.spectators.push(player)
+            lobby.playersQty++
+            const newLobby = await lobby.save()
+            newLobby.players.forEach(player => {
+                io.in(player._id).emit('update-lobby',newLobby._id) //Todo, change with lobby code room, for now its for everyone
+            })
+            return newLobby 
+        }
     }else{
-        lobby.players.push(player)
-        lobby.playersQty++
-        const newLobby = await lobby.save()
-        return newLobby 
+        return false
     }
+    
 }
 
-async function leaveLobby(player, code){
+async function leaveLobby(player){
     let lobby = await Lobby.findOne({
         active:true,
-        code:code
+        status:'open',
+        players:{
+            _id:player.id
+        }
     }).exec()
     if(!lobby.players.includes(player.id)){
-        return 'Not in lobby'
+        return false
     }else{
         lobby.ctSide.pull(player)
         lobby.tSide.pull(player)
+        lobby.spectators.pull(player)
         lobby.players.pull(player)
         lobby.playersQty--
-        if(lobby.leader == player){
-            lobby.leader = lobby.player[0]
+        if(!lobby.players.length){
+            lobby.active = false
+            lobby.status = 'empty'
+            const newLobby = await lobby.save()
+            io.emit('update-lobbies-list')
+            return newLobby 
+        }else{
+            if(lobby.leader == player){
+                lobby.leader = lobby.player[0]
+            }
+            const newLobby = await lobby.save()
+            newLobby.players.forEach(player => {
+                io.in(player._id).emit('update-lobby',newLobby._id)
+            })
+            return newLobby 
         }
-        const newLobby = await lobby.save()
-        return newLobby 
+        
+        
     }
 }
 

@@ -4,7 +4,12 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
-const session = require('express-session')
+const session = require('express-session')({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+})
 const morgan = require('morgan')
 const path = require('path')
 const history = require('connect-history-api-fallback')
@@ -22,27 +27,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors({ credentials: true }))
 app.use(morgan('dev'))
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}))
+app.use(session)
 
 app.use(passport.initialize())
 app.use(passport.session())
 
-// app.get('/', (req, res) => {
-//   if(req.isAuthenticated()){
-//     res.redirect('/account')
-//   }else{
-//     res.send('<a href="auth/steam">Logueate Aqui</a>')
-//   }
-// })
-
-// app.get('/account', checkAuth, function(req, res) {
-//   res.send(req.user)
-// })
 
 app.use('/api', checkAuth, api)
 app.use('/auth', auth)
@@ -57,6 +46,9 @@ mongoose.connect(process.env.DATABASE_URL,{
   useFindAndModify: false
 })
 const server = app.listen(port, () => console.log('Server running: Go to http://localhost:' + port))
+socketio.use((socket,next)=>{
+  session(socket.request,{},next)
+})
 socketio.listen(server)
 
 module.exports = {

@@ -5,6 +5,10 @@ const playerSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+  status:{
+    type:String,
+    default:'Disconnected'
+  },
   steamId: {
     type: String
   },

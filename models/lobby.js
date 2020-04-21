@@ -16,7 +16,7 @@ const lobbySchema = new mongoose.Schema({
   playersQty: {
     type: Number,
     default:1,
-    min: 1,
+    min: 0,
     max: 12
   },
   bestOf: {
@@ -27,7 +27,8 @@ const lobbySchema = new mongoose.Schema({
   },
   maps: [String],
   mapSelected: {
-    type: String  
+    type: String ,
+    default: 'de_dust2' 
   },
   status: {
     type: String,
@@ -45,6 +46,10 @@ const lobbySchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Player'
   }],
+  spectators:[{
+    type: mongoose.Schema.ObjectId,
+    ref: 'Player'
+  }],
   leader: {
     type: mongoose.Schema.ObjectId,
     ref: 'Player'
@@ -56,7 +61,11 @@ const lobbySchema = new mongoose.Schema({
   tSide: [{
     type: mongoose.Schema.ObjectId,
     ref: 'Player'
-  }]
+  }],
+  server:{
+    type: mongoose.Schema.ObjectId,
+    ref: 'Server'
+  }
 },
 {
   timestamps: true
