@@ -84,7 +84,17 @@ async function joinLobby(player,code){
         status:'open',
         code:code
     }).exec()
-    if(lobby){
+    let currentLobby = await Lobby.findOne({
+        active:true,
+        status:'open',
+        players:{
+            _id:player.id
+        }
+    }).exec()
+    if(lobby){        
+        if(lobby.id != currentLobby.id){ // Check if player is in another lobby
+            await leaveLobby(player) // Exits the other lobby so he can join this one
+        }
         if(lobby.players.includes(player.id)){
             return lobby
         }else{
@@ -126,8 +136,8 @@ async function leaveLobby(player){
             io.emit('update-lobbies-list')
             return newLobby 
         }else{
-            if(lobby.leader == player){
-                lobby.leader = lobby.player[0]
+            if(lobby.leader == player.id){
+                lobby.leader = lobby.players[0]
             }
             const newLobby = await lobby.save()
             newLobby.players.forEach(player => {

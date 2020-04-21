@@ -13,8 +13,8 @@ passport.deserializeUser(function(id, done) {
 })
 
 passport.use(new SteamStrategy({
-        returnURL: process.env.BASE_URL + ':' + process.env.PORT + '/auth/steam/return',
-        realm: process.env.BASE_URL + ':'+process.env.PORT,
+        returnURL: process.env.BASE_URL + '/auth/steam/return',
+        realm: process.env.BASE_URL,
         apiKey: process.env.STEAM_API_KEY
     },
     function(identifier, profile, done) {
