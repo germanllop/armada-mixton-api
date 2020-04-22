@@ -17,7 +17,7 @@ const lobbySchema = new mongoose.Schema({
     type: Number,
     default:1,
     min: 0,
-    max: 12
+    max: 16
   },
   bestOf: {
     type: Number,
