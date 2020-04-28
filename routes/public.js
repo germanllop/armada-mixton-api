@@ -2,11 +2,13 @@ const express = require('express')
 const router = express.Router()
 const lobbyController = require('../controllers/lobbyController')
 
-router.get('/getconfig/:id/:type',async(req,res)=>{
+router.get('/getconfig/:id',async(req,res)=>{
     const lobby = await lobbyController.getLobby(req.params.id)
+    if(!lobby){res.status(404).send()}
     let matchConfig = {
         matchid:lobby.matchId,
         players_per_team:5,
+        num_maps:lobby.bestOf,
         min_players_to_ready:10,
         in_spectators_to_ready:0,
         skip_veto:true,
@@ -44,17 +46,15 @@ router.get('/getconfig/:id/:type',async(req,res)=>{
         matchConfig.team2.players[ct.steamId] = ct.name
     })
 
-    switch (req.params.type) {
-        case 'bo1':
-            matchConfig.num_maps = 1 
+    switch (lobby.bestOf) {
+        case 1:
             matchConfig.maplist.push(lobby.mapSelected)        
             break
-        case 'bo3':
-            matchConfig.num_maps = 3 
+        case 3:
             matchConfig.maplist.length?matchConfig.maplist = lobby.maps:matchConfig.maplist.push(lobby.mapSelected) // It shouldn't come to this
             break
         default:
-            res.status(404).send()
+            res.status(404).send() // It shouldn't come to this
             break
     }
         res.send(matchConfig)
