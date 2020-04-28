@@ -13,6 +13,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
+    "gamedig": "^2.0.20",
     "mongoose": "^5.9.2",
     "morgan": "^1.9.1",
     "passport": "^0.4.1",
@@ -20,6 +21,7 @@
     "passport.socketio": "^3.7.0",
     "path": "^0.12.7",
     "socket.io": "^2.3.0",
+    "srcds-rcon": "^2.2.1",
     "util": "^0.12.2"
   },
   "devDependencies": {

@@ -65,6 +65,11 @@ const lobbySchema = new mongoose.Schema({
   server:{
     type: mongoose.Schema.ObjectId,
     ref: 'Server'
+  },
+  matchId:{
+    type: Number,
+    unique: true,
+    default:0
   }
 },
 {

@@ -1,5 +1,7 @@
 const Lobby = require('../models/lobby')
+const Sever = require('../models/server')
 const io = require('../config/socketio')
+const Rcon = require('srcds-rcon')
 
 async function listPublicLobbies(){
     const publicLobbies = Lobby.find({
@@ -43,6 +45,43 @@ async function getMyLobby(player){
     .populate('tSide')
     await myLobby.exec()
     return myLobby
+}
+
+async function getLobby(id){
+    const lobby = Lobby.findById(id)
+    .populate('leader')
+    .populate('players')
+    .populate('spectators')
+    .populate('ctSide')
+    .populate('tSide')
+    await lobby.exec()
+    return lobby
+}
+
+async function launchLobby(id){
+    
+    let query = Server.findOneAndUpdate({status:'available'},{status:'unavailable'},{new:true})
+    const server = await query.exec()
+
+    let rcon = Rcon({
+        address: server.ip+':'+server.port,
+        password: server.rcon
+    })
+
+    rcon.connect().then(() => {
+        console.log('connected')
+    }).catch(console.error)
+
+    rcon.disconnect()
+    const lastMatch = await Lobby.findOne({}).sort({"matchId":-1}).select({ matchId: 1}).exec()
+    query = Lobby.findByIdAndUpdate(id, {
+        server: server,
+        matchId: lastMatch.matchId + 1,
+        status: 'closed'       
+    },{
+        new:true
+    })
+    const newLobby = await query.exec()
 }
 
 async function updateLobby(lobby){
@@ -156,5 +195,7 @@ module.exports = {
     createLobby,
     updateLobby,
     joinLobby,
-    leaveLobby
+    leaveLobby,
+    getLobby,
+    launchLobby
 }
