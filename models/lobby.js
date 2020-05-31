@@ -30,6 +30,10 @@ const lobbySchema = new mongoose.Schema({
     type: String ,
     default: 'de_dust2' 
   },
+  ac:{
+    type:Boolean,
+    default:false
+  },
   status: {
     type: String,
     default:'open'

@@ -30,14 +30,14 @@ mongoose.connect(process.env.DATABASE_URL,{
   useCreateIndex: true,
   useFindAndModify: false
 })
-
-app.use(session({
+const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   store: new MongoStore({ mongooseConnection: mongoose.connection }),
   cookie: { secure: false }
-}))
+})
+app.use(sessionMiddleware)
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -53,7 +53,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 const server = app.listen(port, () => console.log('Server running: Go to http://localhost:' + port))
 socketio.use((socket,next)=>{
-  session(socket.request,{},next)
+  sessionMiddleware(socket.request,socket.request.res,next)
 })
 socketio.listen(server)
 

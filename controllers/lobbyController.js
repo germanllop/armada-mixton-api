@@ -1,5 +1,5 @@
 const Lobby = require('../models/lobby')
-const Sever = require('../models/server')
+const Server = require('../models/server')
 const io = require('../config/socketio')
 const Rcon = require('srcds-rcon')
 
@@ -33,7 +33,6 @@ async function createLobby(player){
 async function getMyLobby(player){
     const myLobby = Lobby.findOne({
         active: true,
-        status:'open',
         players:{
             _id:player.id
         }
@@ -52,36 +51,55 @@ async function getLobby(id){
     .populate('leader')
     .populate('players')
     .populate('spectators')
+    .populate('server')
     .populate('ctSide')
     .populate('tSide')
     await lobby.exec()
     return lobby
 }
 
-async function launchLobby(id){
-    
-    let query = Server.findOneAndUpdate({status:'available'},{status:'unavailable'},{new:true})
-    const server = await query.exec()
-
-    let rcon = Rcon({
+async function launchLobby(lobby){ 
+    io.in(lobby._id).emit('launch-status',{type:'info',message:'Buscando servidores disponibles.'})
+    // First we block the first available server
+    const server = await Server.findOneAndUpdate({status:'available'},{status:'available'},{new:true}).select('+rcon').exec()
+    // Check if the server is valid
+    if(!server){
+        io.in(lobby._id).emit('launch-status',{type:'error',message:'No hay servidores disponibles. Trata en un momento.'})
+        return false
+    }
+    // Create connection with the server to config match
+    const rcon = Rcon({
         address: server.ip+':'+server.port,
         password: server.rcon
     })
-
-    rcon.connect().then(() => {
-        console.log('connected')
-    }).catch(console.error)
-
-    rcon.disconnect()
-    const lastMatch = await Lobby.findOne({}).sort({"matchId":-1}).select({ matchId: 1}).exec()
-    query = Lobby.findByIdAndUpdate(id, {
-        server: server,
-        matchId: lastMatch.matchId + 1,
-        status: 'closed'       
-    },{
-        new:true
+    // We connect with the server
+    rcon.connect()
+    .then(async()=>{
+        const lastMatch = await Lobby.findOne({}).sort({"matchId":-1}).select({ matchId: 1}).exec()
+        io.in(lobby._id).emit('launch-status',{type:'info',message:'Configurando el Servidor.'})
+        Lobby.findByIdAndUpdate(lobby._id, {
+            server: server,
+            matchId: lastMatch.matchId + 1,
+            status: 'ready'       
+        },{
+            new:true
+        },(err,newLobby)=>{
+            rcon.command('get5_loadmatch_url '+process.env.BASE_URL.replace("http://",'').replace("https://",'')+'public/getconfig/'+id)
+            .then(res =>{
+                console.log(res)
+                return newLobby
+            }).then(()=>rcon.disconnect())
+            newLobby.players.forEach(player => {
+                io.in(player._id).emit('update-lobby',newLobby._id) 
+            })
+            if(err){console.log(err)}
+        })
     })
-    const newLobby = await query.exec()
+    .catch((error)=>{
+        console.log(error)
+        io.in(lobby._id).emit('launch-status',{type:'error',message:'Hubo un error en el servidor. Trata en un momento.'})  
+        return false      
+    })
 }
 
 async function updateLobby(lobby){
@@ -100,6 +118,7 @@ async function updateLobby(lobby){
         ctSide:         lobby.ctSide,
         tSide:          lobby.tSide,
         leader:         lobby.leader,
+        ac:             lobby.ac
     },{
         new:true
     })

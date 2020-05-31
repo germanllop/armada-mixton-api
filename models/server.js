@@ -11,7 +11,8 @@ const serverSchema = new mongoose.Schema({
     type: String
   },
   rcon: {
-    type: String
+    type: String,
+    select: false 
   },
   status: {
     type: String,

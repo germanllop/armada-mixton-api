@@ -55,6 +55,18 @@ router.get('/joinLobby/:id',async function(req,res){
     
 })
 
+router.get('/launchLobby',async function(req,res){
+    const me = req.user
+    const lobby = await lobbyController.getMyLobby(me)
+    if(lobby){
+        const newLobby = await lobbyController.launchLobby(lobby)
+        res.send(newLobby)
+    }else{
+        res.status(404).send('No hay!') 
+    }
+    
+})
+
 // Players Routes
 router.get('/getPlayers',async(req,res)=>{
     const me = req.user // use await playerController.getFirstPlayer() on Dev it should change to req.user
